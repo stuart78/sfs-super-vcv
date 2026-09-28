@@ -1,5 +1,6 @@
 #include "plugin.hpp"
 #include "parts.hpp"
+#include "fwrate.hpp"
 #include "chorus_tables.hpp"
 #include <cmath>
 #include <cstdint>
@@ -30,10 +31,13 @@
 // That is the shipped firmware, and it is kept.
 //
 // THE ANALOG SIDE IS ASSUMED. There is no CHORUS schematic in the repo. The
-// firmware holds DAC2 at mid-scale as a reference, exactly as the 2OPFM does
-// for its difference-amplifier output, so the 2OPFM's front end is assumed:
-// 409.6 counts/V in, 4.87 mV/count out (x6.04 on 3.3 V / 4096), both
-// non-inverting overall. The product page adds what the firmware cannot see:
+// firmware holds DAC2 at mid-scale as a reference, as the 2OPFM does for its
+// difference-amplifier output. The audio front end is taken as a Eurorack
+// effect's: +-10 V fills the ADC (204.8 counts/V) and the output stage undoes
+// it, so the wet path is unity gain, non-inverting. (The first port used
+// 2OPFM's 409.6 counts/V in and x6.04 out: +-5 V filled the ADC with no
+// headroom and the wet path ran 6 dB hot.) The CV input keeps 409.6 counts/V.
+// The rate conversion is super::FirmwareRate (src/fwrate.hpp). The product page adds what the firmware cannot see:
 // BAL "a simple crossfader from dry to wet" (taken as linear), and the CV
 // "through its associated attenuverter" before the ADC.
 // =============================================================================
@@ -82,9 +86,7 @@ struct ChorusFirmware {
 	Smooth smooth;
 	// what the ADCs read: AMT, DELAY, CV, RATE, FB (12-bit), and the audio (ADC2)
 	uint16_t adc[5] = {0, 0, 1900, 0, 0};
-	int audioIn = 0;
-	float dac = 2048.f;
-	double acc = 0.0, ctlAcc = 0.0;
+	double ctlAcc = 0.0;
 
 	ChorusFirmware() {
 		smoothInit(smooth, 0.05f, 0.5f);
@@ -129,14 +131,12 @@ struct ChorusFirmware {
 		delay += ((di / 1024.f) - delay) * 0.5f;
 	}
 
-	void run(float sr) {
-		acc += FS / sr;
-		while (acc >= 1.0) {
-			acc -= 1.0;
-			dac = (float)(uint32_t)(tick((float)(audioIn - 2048)) + 2048.f);
-			ctlAcc += FS_CTL / FS;
-			if (ctlAcc >= 1.0) { ctlAcc -= 1.0; control(); }
-		}
+	// One TIM2 interrupt: an ADC count in, the DAC count out.
+	float interrupt(int adcIn) {
+		float dac = (float)(uint32_t)(tick((float)(adcIn - 2048)) + 2048.f);
+		ctlAcc += FS_CTL / FS;
+		if (ctlAcc >= 1.0) { ctlAcc -= 1.0; control(); }
+		return dac;
 	}
 };
 
@@ -146,7 +146,9 @@ struct Chorus : Module {
 	enum OutputId { OUT_OUTPUT, OUTPUTS_LEN };
 	enum LightId { OUT_LIGHT, LFO_LIGHT, LIGHTS_LEN };
 
+	static constexpr float COUNTS_PER_V = 204.8f;   // assumed: +-10 V full scale
 	ChorusFirmware fw;
+	super::FirmwareRate rate;
 
 	Chorus() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -163,7 +165,7 @@ struct Chorus : Module {
 		configLight(LFO_LIGHT, "LFO");
 	}
 
-	void onReset() override { fw = ChorusFirmware(); }
+	void onReset() override { fw = ChorusFirmware(); rate = super::FirmwareRate(); }
 
 	void process(const ProcessArgs& args) override {
 		auto pot = [](float k) { return (uint16_t)clamp((int)std::lround(k * 4095.f), 0, 4095); };
@@ -176,9 +178,11 @@ struct Chorus : Module {
 		fw.adc[2] = (uint16_t)clamp((int)std::lround(ChorusFirmware::MAGIC_CV_OFFSET
 		              + 409.6f * att * inputs[CV_INPUT].getVoltage()), 0, 4095);
 		float dry = inputs[IN_INPUT].getVoltage();
-		fw.audioIn = clamp((int)std::lround(2048.f + 409.6f * dry), 0, 4095);
-		fw.run(args.sampleRate);
-		float wet = (fw.dac - 2047.f) * (3.3f / 4096.f * 6.04f);
+		rate.setRates(ChorusFirmware::FS, args.sampleRate);
+		float wet = rate.process(dry, [&](float x) {
+			int adc = clamp((int)std::lround(2048.f + COUNTS_PER_V * x), 0, 4095);
+			return (fw.interrupt(adc) - 2048.f) / COUNTS_PER_V;
+		});
 		float b = params[BAL_PARAM].getValue();
 		float y = dry * (1.f - b) + wet * b;
 		outputs[OUT_OUTPUT].setVoltage(y);

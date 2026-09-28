@@ -1,5 +1,6 @@
 #include "plugin.hpp"
 #include "parts.hpp"
+#include "fwrate.hpp"
 #include "chorus_tables.hpp"    // ROOM's float_expo_table is the same table, byte for byte
 #include <cmath>
 #include <cstdint>
@@ -30,11 +31,16 @@
 // (no high-pass) and SIZE reads 0 (every delay collapses). That is the shipped
 // firmware and it is the default; the context menu can complete the table.
 //
-// THE ANALOG SIDE IS ASSUMED, as for CHORUS: no ROOM schematic in the repo, the
-// firmware holds DAC2 at mid-scale as its output reference, so the 2OPFM front
-// end is used (409.6 counts/V in, x6.04 difference out, non-inverting). The
-// DRY/WET slot is a horizontal slider mixing the input with the DAC's output.
-// The panel's LED is taken to follow the output.
+// THE ANALOG SIDE IS ASSUMED, as for CHORUS: no ROOM schematic in the repo.
+// The firmware holds DAC2 at mid-scale as its output reference; the front end
+// is taken as a Eurorack effect's: +-10 V fills the ADC (204.8 counts/V), and
+// the output stage undoes it, so the wet path is unity gain. (The first port
+// used 2OPFM's 409.6 counts/V and x6.04 out: +-5 V then filled the ADC with no
+// headroom and the wet path was 6 dB hot, so a 5 V signal's reverb sat on the
+// firmware's +-2047 clamp 58% of the time.) The rate conversion is
+// super::FirmwareRate (src/fwrate.hpp). The DRY/WET slot is a horizontal
+// slider mixing the input with the DAC's output. The panel's LED follows the
+// output.
 // =============================================================================
 
 struct RoomFirmware {
@@ -70,9 +76,7 @@ struct RoomFirmware {
 	bool fixTable = false;
 
 	uint16_t adc[4] = {0, 0, 0, 0};                 // HP, SIZE, LP, FB: ADC1, 10-bit
-	int audioIn = 2047;
-	float dac = 2047.f;
-	double acc = 0.0, ctlAcc = 0.0;
+	double ctlAcc = 0.0;
 
 	RoomFirmware() {
 		svfInit(fbLow, 2500.f, 0.8f);
@@ -154,14 +158,12 @@ struct RoomFirmware {
 		fbLow.a = lp;
 	}
 
-	void run(float sr) {
-		acc += FS / sr;
-		while (acc >= 1.0) {
-			acc -= 1.0;
-			dac = (float)(uint32_t)(tick((float)(audioIn - 2047)) + 2047.f);
-			ctlAcc += FS_CTL / FS;
-			if (ctlAcc >= 1.0) { ctlAcc -= 1.0; control(); }
-		}
+	// One TIM2 interrupt: an ADC count in, the DAC count out.
+	float interrupt(int adcIn) {
+		float dac = (float)(uint32_t)(tick((float)(adcIn - 2047)) + 2047.f);
+		ctlAcc += FS_CTL / FS;
+		if (ctlAcc >= 1.0) { ctlAcc -= 1.0; control(); }
+		return dac;
 	}
 };
 
@@ -171,7 +173,9 @@ struct Room : Module {
 	enum OutputId { OUT_OUTPUT, OUTPUTS_LEN };
 	enum LightId { OUT_LIGHT, LIGHTS_LEN };
 
+	static constexpr float COUNTS_PER_V = 204.8f;   // assumed: +-10 V full scale
 	RoomFirmware fw;
+	super::FirmwareRate rate;
 
 	Room() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -189,6 +193,7 @@ struct Room : Module {
 		bool fix = fw.fixTable;
 		fw = RoomFirmware();
 		fw.fixTable = fix;
+		rate = super::FirmwareRate();
 	}
 
 	void process(const ProcessArgs& args) override {
@@ -198,9 +203,11 @@ struct Room : Module {
 		fw.adc[2] = pot10(params[LP_PARAM].getValue());
 		fw.adc[3] = pot10(params[FB_PARAM].getValue());
 		float dry = inputs[IN_INPUT].getVoltage();
-		fw.audioIn = clamp((int)std::lround(2047.f + 409.6f * dry), 0, 4095);
-		fw.run(args.sampleRate);
-		float wet = (fw.dac - 2047.f) * (3.3f / 4096.f * 6.04f);
+		rate.setRates(RoomFirmware::FS, args.sampleRate);
+		float wet = rate.process(dry, [&](float x) {
+			int adc = clamp((int)std::lround(2047.f + COUNTS_PER_V * x), 0, 4095);
+			return (fw.interrupt(adc) - 2047.f) / COUNTS_PER_V;
+		});
 		float m = params[MIX_PARAM].getValue();
 		float y = dry * (1.f - m) + wet * m;
 		outputs[OUT_OUTPUT].setVoltage(y);

@@ -112,9 +112,15 @@ conventions it follows. **The plan, the order and each module's status are in
    in - lfo(1 - delay) - delay x 14999 (300 ms max, matching the product page),
    INVERTED feedback x FB. The firmware's float_expo_table is declared [1024]
    with 1021 written: RATE/AMT at the very top read 0 (kept, tested). No
-   schematic: the 2OPFM front end is ASSUMED (409.6 counts/V in, x6.04 DAC
-   difference out, non-inverting); BAL (linear dry/wet) and the CV attenuverter
-   are analog, per the product page. Panel from the PCB gerbers by
+   schematic: the audio front end is ASSUMED to be a Eurorack effect's (+-10 V
+   fills the ADC, 204.8 counts/V, unity wet gain); BAL (linear dry/wet) and the
+   CV attenuverter are analog, per the product page. **Rate conversion is
+   `src/fwrate.hpp`** (shared with ROOM): band-limit, interpolate to each tick,
+   interpolate the DAC, reconstruction filter. The first port sampled the
+   nearest host sample and held the DAC, and used 2OPFM's 409.6 counts/V in and
+   x6.04 out: a 5 V signal filled the ADC, ROOM's reverb sat on its +-2047
+   clamp 58% of the time, and the jitter alone held both modules near -33 dB
+   THD+N against the firmware's own -50. Panel from the PCB gerbers by
    `tools/gerber_panel.py` (copper = the gold art; the outline's contours = the
    holes). `tools/chorus-harness.cpp`.
 
@@ -127,7 +133,11 @@ conventions it follows. **The plan, the order and each module's status are in
    wet signal, HP/SIZE read 0 too -- kept as shipped, with "Complete the
    firmware's expo table" in the menu. The export draws no parts; positions come
    from its gerbers (the gap between DRY and WET is a 20.3 mm horizontal slider
-   slot, `super::SliderH`). Analog I/O assumed from 2OPFM. `tools/room-harness.cpp`.
+   slot, `super::SliderH`). Analog I/O assumed as CHORUS's, through the same
+   `src/fwrate.hpp`. FB near the top is the firmware's own: 16-bit rounding
+   recirculates as grit from ~0.9, 0.98 nearly holds, and at the very top the
+   loop gain passes 1 and it runs away to full scale. `tools/room-harness.cpp`
+   (checks a 5 V sine stays off the clamp and under -45 dB THD+N).
 
 10. **OTAVCAs** (slug `OTAVCAs`, `src/otavcas.cpp`, hidden, 12HP; unreleased
     design). Two LM13700 VCAs: Iabc = 10 x (GAIN 0-5 V/100k + attenuverted

@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <complex>
 rack::plugin::Plugin* pluginInstance = nullptr;
 
 static const float SR = 48000.f;
@@ -50,8 +51,35 @@ static float decay40(const std::vector<float>& y) {
 	return (last - ipk) / SR;
 }
 
+// THD+N of a sine: the energy more than 30 Hz from it, against the total
+static double thdn(const std::vector<float>& y, double f0) {
+	int N = 8192; double tot = 0, off = 0;
+	for (int k = 1; k < N / 2; k++) {
+		std::complex<double> s = 0;
+		for (int t = 0; t < N; t++) s += (double)y[y.size() - N + t] * (0.5 - 0.5 * std::cos(2 * M_PI * t / N)) * std::polar(1.0, -2 * M_PI * k * t / N);
+		double p = std::norm(s); tot += p; if (std::fabs(k * SR / N - f0) > 30) off += p;
+	}
+	return 10 * std::log10(off / tot);
+}
+
 int main() {
 	rack::random::init();
+	printf("== level and cleanliness ==\n");
+	{   // A 5 V sine is ordinary VCV audio. With 2OPFM's front end it filled the
+		// ADC and its reverb sat on the +-2047 clamp 58% of the time, and the
+		// crude rate conversion held the whole module to -32 dB.
+		Rig r(0.5f, 0.6f);
+		std::vector<float> y; float pk = 0;
+		for (int i = 0; i < (int)(3 * SR); i++) {
+			r.m.inputs[Room::IN_INPUT].setVoltage(5.f * std::sin(2 * M_PI * 440.0 * i / SR));
+			r.m.process(r.args);
+			if (i > 2 * SR) { y.push_back(r.m.outputs[Room::OUT_OUTPUT].getVoltage()); pk = std::max(pk, std::fabs(y.back())); }
+		}
+		double d = thdn(y, 440);
+		printf("  5 V sine, defaults, wet: peak %.2f V, THD+N %.1f dB\n", pk, d);
+		check(pk < 9.9f, "a 5 V signal's reverb stays off the firmware's clamp");
+		check(d < -45.0, "THD+N better than -45 dB (the firmware alone is ~-50)");
+	}
 	printf("== the tail ==\n");
 	float lo, hi, small;
 	{ Rig r(0.3f, 0.6f); lo = decay40(r.run(8.f, 0.05f)); }
