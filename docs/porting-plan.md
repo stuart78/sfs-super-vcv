@@ -94,6 +94,7 @@ there they toggle (`momentary = false`). The firmware sees the same held states.
 
 CC0 covers the code and the art. It does not cover the **Super Synthesis name
 or the product names**, and the VCV Library generally expects a hardware
-maker's blessing for recreations. Talk to Chris McDowell before publishing.
+maker's blessing for recreations. **Chris McDowell gave his permission on
+2026-09-28**; cite it when submitting to the Library.
 The working name "SFS Super" (slug `SFSSuper`) is provisional; the slug is
 permanent only from the first release.

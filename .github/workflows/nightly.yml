@@ -233,7 +233,7 @@ jobs:
           body: |
             **Automated nightly build** of SFS Super, rebuilt on every commit to `main`.
 
-            The Super Synthesis Eurorack library (Chris McDowell, CC0) ported to VCV Rack. An unofficial port, not endorsed by Super Synthesis.
+            The Super Synthesis Eurorack library (Chris McDowell, CC0) ported to VCV Rack. Ported with Chris McDowell's permission.
 
             - Version `${{ needs.stamp.outputs.version }}`, commit `${{ needs.stamp.outputs.sha }}`
             - Modules: ${{ needs.stamp.outputs.wip }}
