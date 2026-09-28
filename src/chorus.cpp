@@ -87,6 +87,20 @@ struct ChorusFirmware {
 	// what the ADCs read: AMT, DELAY, CV, RATE, FB (12-bit), and the audio (ADC2)
 	uint16_t adc[5] = {0, 0, 1900, 0, 0};
 	double ctlAcc = 0.0;
+	// The firmware hard-clamps the line's output at +-2047, INSIDE the feedback
+	// loop. A 5 V signal (0.7 x 1024 counts into the line) with FB above ~0.6
+	// builds past it, and a hard clip in a loop crackles: 141 spikes in 6 s at
+	// FB 0.7, the firmware at its own rate 210. `soft` is identical to the
+	// firmware below 1024 counts (a 5 V signal enters the line at 717) and
+	// rounds off towards 2047 above it: no spikes left at FB 0.9, where a knee
+	// at 1536 still left some. Menu; off = the hard clamp.
+	bool softClip = true;
+	static float soft(float x) {
+		const float K = 1024.f, R = 2047.f - K;
+		float a = std::fabs(x);
+		if (a <= K) return x;
+		return std::copysign(K + R * std::tanh((a - K) / R), x);
+	}
 
 	ChorusFirmware() {
 		smoothInit(smooth, 0.05f, 0.5f);
@@ -117,7 +131,7 @@ struct ChorusFirmware {
 		bufferModulation += (lfoOut - bufferModulation) * 0.03f;
 		delayFilt = smoothTick(smooth, delay);
 		float out = lerp(buf, in - bufferModulation * (1.f - delayFilt) - delayFilt * (LEN - 1));
-		out = clamp(out, -2047.f, 2047.f);
+		out = softClip ? soft(out) : clamp(out, -2047.f, 2047.f);
 		feedback = out * (fb * -1.f);
 		return out;
 	}
@@ -165,7 +179,21 @@ struct Chorus : Module {
 		configLight(LFO_LIGHT, "LFO");
 	}
 
-	void onReset() override { fw = ChorusFirmware(); rate = super::FirmwareRate(); }
+	void onReset() override {
+		bool soft = fw.softClip;
+		fw = ChorusFirmware();
+		fw.softClip = soft;
+		rate = super::FirmwareRate();
+	}
+
+	json_t* dataToJson() override {
+		json_t* root = json_object();
+		json_object_set_new(root, "softClip", json_boolean(fw.softClip));
+		return root;
+	}
+	void dataFromJson(json_t* root) override {
+		if (json_t* j = json_object_get(root, "softClip")) fw.softClip = json_boolean_value(j);
+	}
 
 	void process(const ProcessArgs& args) override {
 		auto pot = [](float k) { return (uint16_t)clamp((int)std::lround(k * 4095.f), 0, 4095); };
@@ -212,6 +240,14 @@ struct ChorusWidget : ModuleWidget {
 		addParam(createParamCentered<super::KnobSmall>(mm2px(Vec(xl, 79.49f)), module, Chorus::RATE_PARAM));
 		addParam(createParamCentered<super::KnobSmall>(mm2px(Vec(xr, 79.49f)), module, Chorus::AMT_PARAM));
 		addParam(createParamCentered<super::KnobLarge>(mm2px(Vec(xm, 109.97f)), module, Chorus::DELAY_PARAM));
+	}
+
+	void appendContextMenu(Menu* menu) override {
+		Chorus* m = dynamic_cast<Chorus*>(module);
+		if (!m) return;
+		menu->addChild(new MenuSeparator);
+		menu->addChild(createBoolPtrMenuItem("Soft clip in the feedback loop", "", &m->fw.softClip));
+		menu->addChild(createMenuLabel("Off: the firmware's hard clamp, which crackles with hot input and high FB"));
 	}
 };
 

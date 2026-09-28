@@ -126,7 +126,10 @@ conventions it follows. **The plan, the order and each module's status are in
    nearest host sample and held the DAC, and used 2OPFM's 409.6 counts/V in and
    x6.04 out: a 5 V signal filled the ADC, ROOM's reverb sat on its +-2047
    clamp 58% of the time, and the jitter alone held both modules near -33 dB
-   THD+N against the firmware's own -50. Panel from the PCB gerbers by
+   THD+N against the firmware's own -50. The firmware hard-clamps the line's
+   output INSIDE the feedback loop, which crackles with a 5 V signal and FB
+   above ~0.6; a soft clip (identical below 1024 counts) is on by default, and
+   the menu restores the clamp. Panel from the PCB gerbers by
    `tools/gerber_panel.py` (copper = the gold art; the outline's contours = the
    holes). `tools/chorus-harness.cpp`.
 
