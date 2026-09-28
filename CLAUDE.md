@@ -13,9 +13,15 @@ conventions it follows. **The plan, the order and each module's status are in
   folder (Rack unpacks it at the next launch). Plain `make install` keeps the
   flags, and Rack shows hidden modules nowhere, so after it nothing new appears.
   `RACK_DIR` defaults to `../Rack-SDK`.
-- Render panels the way Signal Function Set does: a throwaway user dir holding
-  only this plugin (plugin.json, plugin.dylib, res/), `Rack -t 4 -u <dir>` under
-  `timeout`, then read `screenshots/SFSSuper/<Slug>.png`.
+- `make dist && ./tools/screenshots.sh` renders every module into
+  `screenshots/` (the README's images) through Rack's own `-t`, in a throwaway
+  user dir; Rack must be closed and the screen unlocked. It draws with
+  `module == NULL`, the Library's thumbnail path.
+- `./tools/static-check.sh` runs cppcheck and clang-tidy as the VCV Library
+  does (exit status = findings). Run it before every release.
+- Releases: bump `plugin.json`, tag `vX.Y.Z`; `.github/workflows/release.yml`
+  builds all four platforms and attaches them (this plugin is distributed from
+  GitHub, so unlike Signal Function Set its releases carry binaries).
 
 ## Rules carried over from Signal Function Set
 

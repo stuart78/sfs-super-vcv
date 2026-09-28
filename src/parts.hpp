@@ -62,7 +62,9 @@ struct ButtonGlow : app::ModuleLightWidget {
 		box.size = mm2px(Vec(8.4f, 8.4f));
 	}
 	void drawLight(const DrawArgs& args) override {
-		if (color.a <= 0.f) return;
+		// With no module (the browser thumbnail) a light keeps its base colour
+		// at full brightness, and every cap would draw lit: show them off.
+		if (!module || color.a <= 0.f) return;
 		float r = box.size.x / 2.f;
 		NVGcolor inner = color, outer = color;
 		inner.a *= 0.95f;

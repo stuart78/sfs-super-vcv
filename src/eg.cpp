@@ -160,9 +160,7 @@ struct Eg : Module {
 struct EgWindow : widget::Widget {
 	Eg* module = nullptr;
 	std::shared_ptr<window::Svg> svg;
-	EgWindow() {
-		svg = Svg::load(asset::plugin(pluginInstance, "res/eg-window-lit.svg"));
-	}
+	EgWindow() : svg(Svg::load(asset::plugin(pluginInstance, "res/eg-window-lit.svg"))) {}
 	void drawLayer(const DrawArgs& args, int layer) override {
 		if (layer != 1 || !svg || !svg->handle) return;
 		float b = module ? module->lights[Eg::RE_LIGHT].getBrightness() : 1.f;
