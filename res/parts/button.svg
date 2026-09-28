@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="9.0000mm" height="9.0000mm" viewBox="8.1638 126.1710 25.5120 25.5120"><defs>
+    <linearGradient id="linear-gradient" x1="73.14" y1="129.9" x2="55.1" y2="147.94" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ababab" />
+      <stop offset="1" stop-color="#4a4a4a" />
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" y1="173.1" x2="55.1" y2="191.14" xlink:href="#linear-gradient" />
+    <linearGradient id="linear-gradient-3" x1="29.94" x2="11.9" xlink:href="#linear-gradient" />
+    <linearGradient id="linear-gradient-4" x1="19.85" y1="64.71" x2="21.99" y2="40.33" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b7322f" />
+      <stop offset="1" stop-color="#f16149" />
+    </linearGradient>
+    <linearGradient id="linear-gradient-5" x1="63.05" x2="65.19" xlink:href="#linear-gradient-4" />
+    <linearGradient id="linear-gradient-6" x1="63.05" y1="107.91" x2="65.19" y2="83.53" xlink:href="#linear-gradient-4" />
+    <linearGradient id="linear-gradient-7" x1="19.85" y1="107.91" x2="21.99" y2="83.53" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#444" />
+      <stop offset="1" stop-color="#a4a4a4" />
+    </linearGradient>
+  </defs>
+  <circle cx="20.92" cy="138.92" r="12.76" fill="url(#linear-gradient-3)" stroke="#5e6060" stroke-width=".5" />
+    </svg>

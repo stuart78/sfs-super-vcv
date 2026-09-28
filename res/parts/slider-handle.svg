@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2.8857mm" height="6.5863mm" viewBox="16.8300 281.3300 8.1800 18.6700"><defs>
+    <linearGradient id="linear-gradient" x1="63.05" y1="64.71" x2="65.19" y2="40.33" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b83330" />
+      <stop offset="1" stop-color="#f0624a" />
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="19.85" y1="107.91" x2="21.99" y2="83.53" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#444" />
+      <stop offset="1" stop-color="#a4a4a4" />
+    </linearGradient>
+    <linearGradient id="linear-gradient-3" x1="63.05" x2="65.19" xlink:href="#linear-gradient-2" />
+    <linearGradient id="linear-gradient-4" x1="19.85" y1="151.11" x2="21.99" y2="126.73" xlink:href="#linear-gradient-2" />
+    <linearGradient id="linear-gradient-5" x1="63.14" y1="151.11" x2="65.27" y2="126.73" xlink:href="#linear-gradient-2" />
+  </defs>
+  <path d="M25.01,284.23v12.87c0,1.6-1.83,2.9-4.09,2.9h0c-2.26,0-4.09-1.3-4.09-2.9v-12.87c0-1.6,1.83-2.9,4.09-2.9h0c2.26,0,4.09,1.3,4.09,2.9Z" fill="#565656" />
+    </svg>

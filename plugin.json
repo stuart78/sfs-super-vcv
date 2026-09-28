@@ -1,0 +1,142 @@
+{
+  "slug": "SFSSuper",
+  "name": "SFS Super",
+  "version": "2.0.0",
+  "license": "GPL-3.0-or-later",
+  "brand": "SFS Super",
+  "author": "Stuart Frederich-Smith",
+  "authorEmail": "hello@signalfunctionset.com",
+  "authorUrl": "https://signalfunctionset.com/",
+  "pluginUrl": "https://signalfunctionset.com/",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": [
+    {
+      "slug": "2OPFM",
+      "name": "2OPFM",
+      "description": "Two-operator FM voice after the Super Synthesis 2OPFM, with the stock firmware emulated and five alternative firmwares.",
+      "tags": [
+        "Synth voice",
+        "Oscillator",
+        "Physical modeling"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "PHRSR",
+      "name": "PHRSR",
+      "description": "Two 16-step phrases recorded live from one knob, after the Super Synthesis PHRSR, ported from its firmware.",
+      "tags": [
+        "Sequencer",
+        "Recording",
+        "Clock generator"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "SVFs",
+      "name": "SVFs",
+      "description": "Two state-variable filters on a 2164, after the Super Synthesis SVFs, modelled from its schematic: 1V/oct, self-oscillating, zener-limited.",
+      "tags": [
+        "Filter",
+        "Dual"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "EG",
+      "name": "EG",
+      "description": "A fast analog attack/decay envelope after the Super Synthesis EG, modelled from its schematic: OTA core, one-shot or re-trigger, end-of-cycle out.",
+      "tags": [
+        "Envelope generator"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "VCAs",
+      "name": "VCAs",
+      "description": "Four linear 2164 VCAs that chain into a mixer, after the Super Synthesis VCAs, modelled from its schematic.",
+      "tags": [
+        "VCA",
+        "Mixer",
+        "Quad"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "SCANNER",
+      "name": "SCANNER",
+      "description": "The CV half of a 4-way crossfader after the Super Synthesis SCANNER: one scan voltage, four overlapping windows.",
+      "tags": [
+        "Utility",
+        "Mixer",
+        "Quad"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "TVCA",
+      "name": "TVCA",
+      "description": "A two-input OTA VCA with tanh distortion, after the Super Synthesis TVCA, modelled from its schematic.",
+      "tags": [
+        "VCA",
+        "Distortion",
+        "Mixer"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "CHORUS",
+      "name": "CHORUS",
+      "description": "A modulated delay line with feedback, after the Super Synthesis CHORUS, ported from its firmware: chorus to 300 ms delay.",
+      "tags": [
+        "Chorus",
+        "Delay",
+        "Effect"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "ROOM",
+      "name": "ROOM",
+      "description": "An allpass reverb after the Super Synthesis ROOM, ported from its firmware: one shared buffer, filtered inverted feedback, dry/wet slider.",
+      "tags": [
+        "Reverb",
+        "Effect"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "OTAVCAs",
+      "name": "OTAVCAs",
+      "description": "Two saturating LM13700 VCAs with attenuverted CV, after an unreleased Super Synthesis design, modelled from its schematic.",
+      "tags": [
+        "VCA",
+        "Dual",
+        "Distortion"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "SH",
+      "name": "S&H",
+      "description": "Three chained JFET sample-and-holds after an unreleased Super Synthesis design: one trigger samples on its rise, the next on its fall.",
+      "tags": [
+        "Sample and hold"
+      ],
+      "hidden": true
+    },
+    {
+      "slug": "PNGBL",
+      "name": "PNGBL",
+      "description": "A pingable OTA state-variable filter after an unreleased Super Synthesis design, modelled from its schematic (provisional panel).",
+      "tags": [
+        "Filter",
+        "Physical modeling"
+      ],
+      "hidden": true
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="22.3mm" height="4.0mm" viewBox="0 0 63.213 11.339">
+  <!-- a horizontal slot: the panel art (ROOM) drills it but draws no track -->
+  <rect width="63.213" height="11.339" fill="#000" fill-opacity="0"/>
+  <rect x="2.835" y="2.835" width="57.543" height="5.669" rx="2.835" fill="#171616"/>
+</svg>

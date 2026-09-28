@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="11.9200mm" height="11.9200mm" viewBox="25.6254 208.4047 33.7892 33.7892"><defs>
+    <linearGradient id="linear-gradient" x1="73.14" y1="129.9" x2="55.1" y2="147.94" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ababab" />
+      <stop offset="1" stop-color="#4a4a4a" />
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" y1="173.1" x2="55.1" y2="191.14" xlink:href="#linear-gradient" />
+    <linearGradient id="linear-gradient-3" x1="29.94" x2="11.9" xlink:href="#linear-gradient" />
+    <linearGradient id="linear-gradient-4" x1="19.85" y1="64.71" x2="21.99" y2="40.33" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b7322f" />
+      <stop offset="1" stop-color="#f16149" />
+    </linearGradient>
+    <linearGradient id="linear-gradient-5" x1="63.05" x2="65.19" xlink:href="#linear-gradient-4" />
+    <linearGradient id="linear-gradient-6" x1="63.05" y1="107.91" x2="65.19" y2="83.53" xlink:href="#linear-gradient-4" />
+    <linearGradient id="linear-gradient-7" x1="19.85" y1="107.91" x2="21.99" y2="83.53" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#444" />
+      <stop offset="1" stop-color="#a4a4a4" />
+    </linearGradient>
+  </defs>
+  <g transform="rotate(30.0000 42.5200 225.2993)"><g>
+      <path d="M50.06,210.17c-2.07-1.03-4.28-1.61-6.5-1.75-.2-.01-.39.08-.51.24-.62.75-1.5,1.28-2.53,1.41s-2.03-.15-2.81-.71c-.16-.12-.37-.16-.56-.1-2.11.71-4.1,1.84-5.83,3.37-.15.13-.22.33-.2.53.09.96-.16,1.96-.79,2.79s-1.53,1.33-2.49,1.49c-.2.03-.38.15-.46.33-1.03,2.07-1.61,4.28-1.75,6.5-.01.2.08.39.24.51.75.62,1.28,1.5,1.41,2.53s-.15,2.03-.71,2.81c-.12.16-.16.37-.1.56.71,2.11,1.84,4.1,3.37,5.83.13.15.33.22.53.2.96-.09,1.96.16,2.79.79s1.33,1.53,1.49,2.49c.03.2.15.38.33.46,2.07,1.03,4.28,1.61,6.5,1.75.2.01.39-.08.51-.24.62-.75,1.5-1.28,2.53-1.41s2.03.15,2.81.71c.16.12.37.16.56.1,2.11-.71,4.1-1.84,5.83-3.37.15-.13.22-.33.2-.53-.09-.96.16-1.96.79-2.79s1.53-1.33,2.49-1.49c.2-.03.38-.15.46-.33,1.03-2.07,1.61-4.28,1.75-6.5.01-.2-.08-.39-.24-.51-.75-.62-1.28-1.5-1.41-2.53s.15-2.03.71-2.81c.12-.16.16-.37.1-.56-.71-2.11-1.84-4.1-3.37-5.83-.13-.15-.33-.22-.53-.2-.96.09-1.96-.16-2.79-.79s-1.33-1.53-1.49-2.49c-.03-.2-.15-.38-.33-.46Z" fill="#565656" />
+      <rect x="37.9" y="210.2" width="1.42" height="16.7" transform="translate(-104.1 48.59) rotate(-30)" fill="#e0e0e0" />
+    </g>
+    </g></svg>
