@@ -1,0 +1,144 @@
+# Release build of SFS Super: on a version tag (v2.0.0), build every platform
+# natively and attach the .vcvplugin files to that tag's GitHub release. SFS
+# Super is not in the VCV Library, so the release is where people get it.
+
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  RACK_SDK_VERSION: "2.6.4"
+
+jobs:
+
+  # The tag must name the version plugin.json carries, or the files attached to
+  # v2.0.1 would say 2.0.0 inside.
+  check:
+    name: Tag matches plugin.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          V=$(jq -r .version plugin.json)
+          [ "$GITHUB_REF_NAME" = "v$V" ] || { echo "::error::tag $GITHUB_REF_NAME but plugin.json says $V"; exit 1; }
+
+  # ── Unix platforms: mac-arm64, mac-x64, lin-x64 — plain bash ────────────────
+  build-unix:
+    name: Build ${{ matrix.sdk }}
+    needs: check
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-14,      sdk: mac-arm64 }
+          # mac-x64 is cross-compiled on the (plentiful) Apple-Silicon runner via
+          # clang --target — macos-13 Intel runners are scarce and queue forever.
+          - { runner: macos-14,      sdk: mac-x64, cross: x86_64-apple-darwin }
+          - { runner: ubuntu-latest, sdk: lin-x64   }
+    steps:
+      - name: Check out plugin
+        uses: actions/checkout@v4
+
+      - name: Install build deps (macOS)
+        if: runner.os == 'macOS'
+        run: brew install zstd jq
+
+      - name: Install build deps (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zstd jq
+
+      - name: Download Rack SDK
+        run: |
+          curl -fL -o rack-sdk.zip \
+            "https://vcvrack.com/downloads/Rack-SDK-${RACK_SDK_VERSION}-${{ matrix.sdk }}.zip"
+          unzip -q rack-sdk.zip
+          echo "RACK_DIR=$PWD/Rack-SDK" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: |
+          make clean
+          # Only export CROSS_COMPILE when set — an empty value still trips the
+          # SDK's `ifdef CROSS_COMPILE` and breaks native arch detection.
+          if [ -n "${{ matrix.cross }}" ]; then export CROSS_COMPILE="${{ matrix.cross }}"; fi
+          make -j"$(getconf _NPROCESSORS_ONLN)" dist
+          echo "Built:"; ls -la dist/*.vcvplugin
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-${{ matrix.sdk }}
+          path: dist/*.vcvplugin
+          if-no-files-found: error
+
+  # ── Windows: native MinGW64 via MSYS2 ───────────────────────────────────────
+  build-win:
+    name: Build win-x64
+    needs: check
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Check out plugin
+        uses: actions/checkout@v4
+
+      - name: Set up MSYS2 (MinGW64)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            curl make tar zip unzip zstd
+            mingw-w64-x86_64-gcc
+            jq
+
+      - name: Download Rack SDK
+        run: |
+          curl -fL -o rack-sdk.zip \
+            "https://vcvrack.com/downloads/Rack-SDK-${RACK_SDK_VERSION}-win-x64.zip"
+          unzip -q rack-sdk.zip
+          echo "RACK_DIR=$PWD/Rack-SDK" >> "$GITHUB_ENV"
+
+      - name: Build
+        # Force libgcc + winpthread static so the .dll is self-contained (Rack on
+        # Windows ships neither libgcc_s_seh-1.dll nor libwinpthread-1.dll). Mirrors
+        # build.sh's native-Windows path.
+        run: |
+          make clean
+          EXTRA_LDFLAGS='-static-libgcc -Wl,--whole-archive,-l:libwinpthread.a,--no-whole-archive' \
+            make -j"$(nproc)" dist
+          echo "Built:"; ls -la dist/*.vcvplugin
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-win-x64
+          path: dist/*.vcvplugin
+          if-no-files-found: error
+
+  # ── Attach the builds to the release for this tag ──────────────────────────
+  release:
+    name: Attach builds
+    needs: [build-unix, build-win]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          pattern: plugin-*
+          merge-multiple: true
+      - name: Attach to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # The release itself (title, notes) is written by hand with gh; this
+        # only adds the four builds, creating a bare release if none exists yet.
+        run: |
+          gh release view "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --notes ""
+          gh release upload "$GITHUB_REF_NAME" out/*.vcvplugin -R "$GITHUB_REPOSITORY" --clobber

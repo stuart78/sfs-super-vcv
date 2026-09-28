@@ -9,9 +9,9 @@
   "authorUrl": "https://signalfunctionset.com/",
   "pluginUrl": "https://signalfunctionset.com/",
   "manualUrl": "",
-  "sourceUrl": "",
+  "sourceUrl": "https://github.com/stuart78/sfs-super-vcv",
   "donateUrl": "",
-  "changelogUrl": "",
+  "changelogUrl": "https://github.com/stuart78/sfs-super-vcv/releases",
   "modules": [
     {
       "slug": "2OPFM",
@@ -21,8 +21,7 @@
         "Synth voice",
         "Oscillator",
         "Physical modeling"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "PHRSR",
@@ -32,8 +31,7 @@
         "Sequencer",
         "Recording",
         "Clock generator"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "SVFs",
@@ -42,8 +40,7 @@
       "tags": [
         "Filter",
         "Dual"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "EG",
@@ -51,8 +48,7 @@
       "description": "A fast analog attack/decay envelope after the Super Synthesis EG, modelled from its schematic: OTA core, one-shot or re-trigger, end-of-cycle out.",
       "tags": [
         "Envelope generator"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "VCAs",
@@ -62,8 +58,7 @@
         "VCA",
         "Mixer",
         "Quad"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "SCANNER",
@@ -73,8 +68,7 @@
         "Utility",
         "Mixer",
         "Quad"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "TVCA",
@@ -84,8 +78,7 @@
         "VCA",
         "Distortion",
         "Mixer"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "CHORUS",
@@ -95,8 +88,7 @@
         "Chorus",
         "Delay",
         "Effect"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "ROOM",
@@ -105,8 +97,7 @@
       "tags": [
         "Reverb",
         "Effect"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "OTAVCAs",
@@ -116,8 +107,7 @@
         "VCA",
         "Dual",
         "Distortion"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "SH",
@@ -125,8 +115,7 @@
       "description": "Three chained JFET sample-and-holds after an unreleased Super Synthesis design: one trigger samples on its rise, the next on its fall.",
       "tags": [
         "Sample and hold"
-      ],
-      "hidden": true
+      ]
     },
     {
       "slug": "PNGBL",
@@ -135,8 +124,7 @@
       "tags": [
         "Filter",
         "Physical modeling"
-      ],
-      "hidden": true
+      ]
     }
   ]
 }

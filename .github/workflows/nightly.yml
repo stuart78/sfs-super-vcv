@@ -52,7 +52,7 @@ jobs:
           # The WIP list is READ from plugin.json, never written out here. As a
           # hand-kept sentence it drifted -- it named Wave and Ratio and then
           # never grew, so six later hidden modules went unmentioned.
-          WIP=$(jq -r '[.modules[] | select(.hidden) | .name] | join(", ")' plugin.json)
+          WIP=$(jq -r '[.modules[] | .name] | join(", ")' plugin.json)
           [ -n "$WIP" ] || WIP="none"
           {
             echo "date=$DATE"
@@ -236,7 +236,7 @@ jobs:
             The Super Synthesis Eurorack library (Chris McDowell, CC0) ported to VCV Rack. An unofficial port, not endorsed by Super Synthesis.
 
             - Version `${{ needs.stamp.outputs.version }}`, commit `${{ needs.stamp.outputs.sha }}`
-            - Modules (all work in progress): ${{ needs.stamp.outputs.wip }}
+            - Modules: ${{ needs.stamp.outputs.wip }}
             - Platforms: mac arm64, mac x64, Windows x64, Linux x64.
 
             To install, drop the `.vcvplugin` for your platform into Rack's plugins folder (`Rack2/plugins-<platform>/`) and restart Rack. The plugin shows as *SFS Super (Nightly)*, slug `SFSSuper-nightly`. Unsigned, so macOS may warn on first load.

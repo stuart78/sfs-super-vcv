@@ -9,7 +9,7 @@ LDFLAGS +=
 SOURCES += $(wildcard src/*.cpp)
 
 DISTRIBUTABLES += res
-DISTRIBUTABLES += $(wildcard LICENSE*)
+DISTRIBUTABLES += $(wildcard LICENSE*) NOTICE.md
 
 include $(RACK_DIR)/plugin.mk
 
